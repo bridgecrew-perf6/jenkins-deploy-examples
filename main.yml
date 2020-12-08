@@ -1,0 +1,51 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  labels:
+    app: "myweb"
+  name: "myweb"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "myweb"
+  template:
+    metadata:
+      labels:
+        app: "myweb"
+    spec:
+      containers:
+      - env:
+        - name: "aliyun_logs_myweb-stdout"
+          value: "stdout"
+        - name: "aliyun_logs_myweb-info"
+          value: "/var/log/nginx/*.log"
+        image: "nginx:1.19.4"
+        name: "myweb"
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "500Mi"
+            cpu: "0.3"
+        volumeMounts:
+        - mountPath: "/var/log/nginx"
+          name: "varlog"
+      volumes:
+      - emptyDir: {}
+        name: "varlog"
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  labels:
+    app: "myweb"
+  name: "myweb-svc"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: "myweb"
