@@ -19,10 +19,10 @@ podTemplate(label: 'jenkins-slave', cloud: 'kubernetes', containers: [
 ) 
 {
   node("jenkins-slave"){
-      stage('拉取代码'){
+      stage('Pull source code'){
           checkout([$class: 'GitSCM', branches: [[name: 'master']], userRemoteConfigs: [[url: "${git_address}"]]])
       }
-      stage('部署项目'){
+      stage('Deploy to kubernetes'){
           kubernetesDeploy configs: "nginx.yml", kubeconfigId: "${k8s_auth}"
       }
   }
